@@ -1,6 +1,7 @@
 import os
 import hashlib
 import json
+import os
 import time
 import re
 import shutil
@@ -82,6 +83,7 @@ class FileHistory(with_metaclass(Singleton)):
         self.HISTORY_FILE = os.path.normpath(os.path.join(sublime.packages_path(), history_path))
 
         self.USE_MONOSPACE = self.__ensure_setting('monospace_font', False)
+        self.USE_ABSOLUTE_PATH = self.__ensure_setting('absolute_path', False)
 
         self.TIMESTAMP_SHOW = self.__ensure_setting('timestamp_show', True)
         self.TIMESTAMP_FORMAT = self.__ensure_setting('timestamp_format', self.DEFAULT_TIMESTAMP_FORMAT)
@@ -316,8 +318,11 @@ class FileHistory(with_metaclass(Singleton)):
         if self.is_transient_view(window, view):
             return
 
+        if self.USE_ABSOLUTE_PATH:
+            filename = os.path.abspath(view.file_name())
+        else:
+            filename = view.file_name()
         # Only keep track of files that have a filename
-        filename = view.file_name()
         if filename is not None:
             project_name = self.get_current_project_key()
 
