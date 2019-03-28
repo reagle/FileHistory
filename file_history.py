@@ -83,7 +83,7 @@ class FileHistory(with_metaclass(Singleton)):
         self.HISTORY_FILE = os.path.normpath(os.path.join(sublime.packages_path(), history_path))
 
         self.USE_MONOSPACE = self.__ensure_setting('monospace_font', False)
-        self.USE_ABSOLUTE_PATH = self.__ensure_setting('absolute_path', False)
+        self.REAL_PATH = self.__ensure_setting('real_path', False)
 
         self.TIMESTAMP_SHOW = self.__ensure_setting('timestamp_show', True)
         self.TIMESTAMP_FORMAT = self.__ensure_setting('timestamp_format', self.DEFAULT_TIMESTAMP_FORMAT)
@@ -318,10 +318,13 @@ class FileHistory(with_metaclass(Singleton)):
         if self.is_transient_view(window, view):
             return
 
-        if self.USE_ABSOLUTE_PATH:
-            filename = os.path.abspath(view.file_name())
+        self.debug('1 view.file_name() = %s' %view.file_name())
+        if self.REAL_PATH:
+            self.debug('self.REAL_PATH == True')
+            filename = os.path.realpath(view.file_name())
         else:
             filename = view.file_name()
+        self.debug('2 filename = %s' %filename)
         # Only keep track of files that have a filename
         if filename is not None:
             project_name = self.get_current_project_key()
