@@ -318,17 +318,16 @@ class FileHistory(with_metaclass(Singleton)):
         if self.is_transient_view(window, view):
             return
 
-        self.debug('1 view.file_name() = %s' %view.file_name())
-        if self.REAL_PATH:
-            self.debug('self.REAL_PATH == True')
-            filename = os.path.realpath(view.file_name())
-        else:
-            filename = view.file_name()
-        self.debug('2 filename = %s' %filename)
+        filename = view.file_name()
         # Only keep track of files that have a filename
         if filename is not None:
+            if self.REAL_PATH:
+                realname = os.path.realpath(view.file_name())
+                if realname != filename:
+                    self.debug("Resolved '%s' to '%s'" % (filename, realname))
+                    filename = realname
+            
             project_name = self.get_current_project_key()
-
             if self.is_suppressed(view, filename):
                 # If filename matches 'path_exclude_patterns' then abort the history tracking
                 # and remove any references to this file from the history
